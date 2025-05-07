@@ -83,15 +83,31 @@ def lambda_handler(event, context):
         print("Calling Bedrock invoke_model API with payload:", json.dumps(request_payload))
         
         # invoke_model APIを呼び出し
-        response = bedrock_client.invoke_model(
-            modelId=MODEL_ID,
-            body=json.dumps(request_payload),
-            contentType="application/json"
-        )
-        
+        # response = bedrock_client.invoke_model(
+        #     modelId=MODEL_ID,
+        #     body=json.dumps(request_payload),
+        #     contentType="application/json"
+        # )
+
         # レスポンスを解析
-        response_body = json.loads(response['body'].read())
-        print("Bedrock response:", json.dumps(response_body, default=str))
+        # response_body = json.loads(response['body'].read())
+        # print("Bedrock response:", json.dumps(response_body, default=str))
+
+        import urllib.request
+
+        api_url = os.environ.get("https://1738-34-41-234-156.ngrok-free.app/generate")  # 例: https://xxxx.ngrok.io
+        request_payload = json.dumps({
+                "prompt": message  # もしくは messages を使いたい場合は調整
+                }).encode("utf-8")
+
+        req = urllib.request.Request(
+                    api_url,
+                        data=request_payload,
+                            headers={"Content-Type": "application/json"}
+                            )
+
+        with urllib.request.urlopen(req) as res:
+                response_body = json.loads(res.read().decode("utf-8"))
         
         # 応答の検証
         if not response_body.get('output') or not response_body['output'].get('message') or not response_body['output']['message'].get('content'):
